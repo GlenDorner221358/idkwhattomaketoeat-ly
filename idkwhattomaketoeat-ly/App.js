@@ -26,7 +26,6 @@ export default function App() {
       console.log("User logged in..." + user.email)
     } else {
       setLoggedIn(false)
-      console.log("No user logged in :(")
     }
   })
     return unsubscribe 
