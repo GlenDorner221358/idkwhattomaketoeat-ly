@@ -64,6 +64,9 @@ function LoginScreen( {navigation} ) {
           <Text style={styles.registerLink}>Register Here</Text>
         </TouchableOpacity>
       </View>
+      <Pressable onPress={() => navigation.navigate('onboarding')}>
+                <Text style={{color: "#D1AC00", fontSize: 15}}> Onboarding screen </Text>
+          </Pressable>
     </SafeAreaView>
   )
 }
@@ -90,7 +93,6 @@ const styles = StyleSheet.create({
     fontSize: width * 0.09,
     fontWeight: 'bold',
     color: '#e8f17f',
-    
   },
   inputContainer: {
     width: '80%',

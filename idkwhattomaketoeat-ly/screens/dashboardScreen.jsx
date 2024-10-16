@@ -9,11 +9,6 @@ export default function DashboardScreen( {navigation} ){
         <SafeAreaView>
 
             <Text> Dashboard screen </Text>
-            <View>
-            <Pressable onPress={() => navigation.navigate('login')}>
-                <Text style={{color: "#D1AC00", fontSize: 15}}> end onboarding </Text>
-            </Pressable>
-        </View>
 
       </SafeAreaView>
     )
