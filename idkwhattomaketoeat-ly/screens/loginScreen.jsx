@@ -16,6 +16,7 @@ function LoginScreen( {navigation} ) {
   //LOGIN FUNCTION
   const login = () => { handleLogin(email, password) }
 
+  // consider use provider
   useEffect(() => {
     const checkOnboardingStatus = async () => {
       try {

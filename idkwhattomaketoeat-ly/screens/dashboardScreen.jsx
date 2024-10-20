@@ -1,35 +1,52 @@
 // IMPORTS
-import { StyleSheet, View, Text, TextInput, ScrollView, TouchableOpacity, Dimensions, KeyboardAvoidingView, Modal, modalVisible, Pressable } from 'react-native';
+import { StyleSheet, View, Text, TextInput, ScrollView, TouchableOpacity, Dimensions, KeyboardAvoidingView, Modal, Pressable } from 'react-native';
 import React, { useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { callGPT35Turbo } from '../services/GPTHolla';
 
+// gets dimensions for the stylesheet
 const { width, height } = Dimensions.get('window');
 
 function DashboardChatScreen() {
-    const [modalVisible, setModalVisible] = useState(false);
-    const [messages, setMessages] = useState([
-        { text: 'Hello! What would you like to cook today?', fromAI: true }
-    ]);
-    const [inputText, setInputText] = useState('');
 
-    const sendMessage = () => {
-        if (inputText.trim()) {
-        setMessages([...messages, { text: inputText, fromAI: false }]);
-        setInputText('');
-        // Simulate AI response (replace this with your AI logic)
-        setTimeout(() => {
-            setMessages(prevMessages => [
-            ...prevMessages,
-            { text: 'Here’s a great recipe for pasta!', fromAI: true }
-            ]);
-        }, 1000);
-        }
-    };
+  // ai stuff
+  const [prompt, setPrompt] = useState('');
+  const [modalVisible, setModalVisible] = useState(false);
+  const [messages, setMessages] = useState([
+    { text: 'Hello! What would you like to cook today?', fromAI: true }
+  ]);
 
+  // Sends user message and gets AI response
+  const handleSend = async () => {
+    if (prompt.trim()) {
+      // Add user's message
+      setMessages([...messages, { text: prompt, fromAI: false }]);
+      setPrompt('');
+
+      try {
+        // Call GPT-3.5 Turbo API
+        const gptResponse = await callGPT35Turbo(prompt);
+        
+        // Add AI's response
+        setMessages(prevMessages => [
+          ...prevMessages,
+          { text: gptResponse, fromAI: true }
+        ]);
+      } catch (error) {
+        console.error('Error calling GPT-3.5 Turbo:', error);
+        setMessages(prevMessages => [
+          ...prevMessages,
+          { text: 'Something went wrong, please try again later.', fromAI: true }
+        ]);
+      }
+    }
+  };
+
+  // Handles the firebase signout
   const handleSignOut = () => {
     signOut(auth)
       .then(() => {
-        navigation.replace('Login'); // Navigate to login screen after successful sign-out
+        navigation.replace('Login');
       })
       .catch((error) => {
         console.error('Error signing out: ', error);
@@ -39,12 +56,14 @@ function DashboardChatScreen() {
   return (
     <SafeAreaView style={styles.container}>
 
-    {/* Settings Button */}
-    <TouchableOpacity style={styles.settingsButton} onPress={() => setModalVisible(true)}>
+      {/* Settings Button */}
+      <TouchableOpacity style={styles.settingsButton} onPress={() => setModalVisible(true)}>
         <Text style={styles.settingsText}>⚙️</Text>
-    </TouchableOpacity>
+      </TouchableOpacity>
 
       <View style={styles.chatContainer}>
+
+        {/* Where the messages actually show */}
         <ScrollView style={styles.messagesContainer} contentContainerStyle={{ paddingBottom: 20 }}>
           {messages.map((message, index) => (
             <View
@@ -59,39 +78,41 @@ function DashboardChatScreen() {
           ))}
         </ScrollView>
 
+        {/* Where you type */}
         <KeyboardAvoidingView behavior="padding" style={styles.inputContainer}>
           <TextInput
             style={styles.input}
             placeholder="Type a message..."
             placeholderTextColor="#aaa"
-            value={inputText}
-            onChangeText={setInputText}
+            value={prompt}
+            onChangeText={setPrompt}
           />
-          <TouchableOpacity style={styles.sendButton} onPress={sendMessage}>
+          <TouchableOpacity style={styles.sendButton} onPress={handleSend}>
             <Text style={styles.sendButtonText}>Send</Text>
           </TouchableOpacity>
         </KeyboardAvoidingView>
+
       </View>
 
-        {/* Modal for Settings */}
-        <Modal
-            animationType="slide"
-            transparent={true}
-            visible={modalVisible}
-            onRequestClose={() => setModalVisible(false)}
-        >
-            <View style={styles.modalOverlay}>
-            <View style={styles.modalContent}>
-                <Text style={styles.modalTitle}>Settings</Text>
-                <Pressable style={styles.signOutButton} onPress={handleSignOut}>
-                <Text style={styles.signOutButtonText}>Sign Out</Text>
-                </Pressable>
-                <Pressable style={styles.closeButton} onPress={() => setModalVisible(false)}>
-                <Text style={styles.closeButtonText}>Close</Text>
-                </Pressable>
-            </View>
-            </View>
-        </Modal>
+      {/* Modal for Settings */}
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Settings</Text>
+            <Pressable style={styles.signOutButton} onPress={handleSignOut}>
+              <Text style={styles.signOutButtonText}>Sign Out</Text>
+            </Pressable>
+            <Pressable style={styles.closeButton} onPress={() => setModalVisible(false)}>
+              <Text style={styles.closeButtonText}>Close</Text>
+            </Pressable>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }

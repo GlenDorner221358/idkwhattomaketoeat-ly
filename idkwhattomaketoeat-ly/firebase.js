@@ -1,10 +1,11 @@
 import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
+import { REACT_APP_FIREBASE_API_KEY } from '@env';
 
 // Replace the following with your app's Firebase project configuration
 const firebaseConfig = {
-    apiKey: "AIzaSyAj7WOb3P7R8GuDpDLUIUYeF6mEMG-6VJ0",
+    apiKey: REACT_APP_FIREBASE_API_KEY,
     authDomain: "idkwhattomaketoeat-ly.firebaseapp.com",
     projectId: "idkwhattomaketoeat-ly",
     storageBucket: "idkwhattomaketoeat-ly.appspot.com",
@@ -18,3 +19,5 @@ const app = initializeApp(firebaseConfig);
 // Initialize Cloud Firestore and get a reference to the service
 export const auth = getAuth(app)
 export const db = getFirestore(app)
+
+// setup .env
