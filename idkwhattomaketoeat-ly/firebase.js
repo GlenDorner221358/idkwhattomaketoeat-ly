@@ -1,9 +1,9 @@
-import { initializeApp } from "firebase/app";
+import { initializeApp, getApp } from "firebase/app";
+import { initializeAuth, getAuth, getReactNativePersistence } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
-import { getAuth } from "firebase/auth";
 import { REACT_APP_FIREBASE_API_KEY } from '@env';
 
-// Replace the following with your app's Firebase project configuration
+// firebase config
 const firebaseConfig = {
     apiKey: REACT_APP_FIREBASE_API_KEY,
     authDomain: "idkwhattomaketoeat-ly.firebaseapp.com",
@@ -16,8 +16,11 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 
+// const auth = initializeAuth(app, {
+//     persistence: getReactNativePersistence(ReactNativeAsyncStorage)
+// });
+
 // Initialize Cloud Firestore and get a reference to the service
 export const auth = getAuth(app)
 export const db = getFirestore(app)
 
-// setup .env

@@ -14,7 +14,7 @@ function RegisterScreen( {navigation} ) {
   const [password, setPassword] = useState('');
 
   // REGISTER FUNCTION
-  const register = () => { handleRegister(name, email, password) }
+  const register = () => { handleRegister(username, email, password) }
 
   return (
     <SafeAreaView style={styles.container}>

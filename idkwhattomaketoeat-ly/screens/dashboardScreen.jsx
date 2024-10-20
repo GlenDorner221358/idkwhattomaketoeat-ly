@@ -2,19 +2,21 @@
 import { StyleSheet, View, Text, TextInput, ScrollView, TouchableOpacity, Dimensions, KeyboardAvoidingView, Modal, Pressable } from 'react-native';
 import React, { useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { callGPT35Turbo } from '../services/GPTHolla';
+import { callGPT35Turbo } from '../services/GPTHolla'; 
+import { Ionicons } from '@expo/vector-icons';
+import { saveRecipeToDB } from '../services/DbService';
 
 // gets dimensions for the stylesheet
 const { width, height } = Dimensions.get('window');
 
 function DashboardChatScreen() {
 
-  // ai stuff
   const [prompt, setPrompt] = useState('');
   const [modalVisible, setModalVisible] = useState(false);
   const [messages, setMessages] = useState([
     { text: 'Hello! What would you like to cook today?', fromAI: true }
   ]);
+
 
   // Sends user message and gets AI response
   const handleSend = async () => {
@@ -39,6 +41,17 @@ function DashboardChatScreen() {
           { text: 'Something went wrong, please try again later.', fromAI: true }
         ]);
       }
+    }
+  };
+
+  // Function to save the GPT-3 response to Firestore
+  const handleSave = async (index, message) => {
+    const success = await saveRecipeToDB('Recipe', message.text);
+    if (success) {
+      // Mark the message as saved in the state
+      const updatedMessages = [...messages];
+      updatedMessages[index].saved = true;
+      setMessages(updatedMessages);
     }
   };
 
@@ -74,6 +87,14 @@ function DashboardChatScreen() {
               ]}
             >
               <Text style={styles.messageText}>{message.text}</Text>
+
+              {/* Show save button only for GPT responses (except the default message) */}
+              {message.fromAI && !message.saved && index > 0 && (
+                <TouchableOpacity style={{marginTop: 8, marginRight: 160}} onPress={() => handleSave(index, message)}>
+                  <Ionicons name="bookmark" color="#aaa" size={28} />
+                </TouchableOpacity>
+              )}
+
             </View>
           ))}
         </ScrollView>

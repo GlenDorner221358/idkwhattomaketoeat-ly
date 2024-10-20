@@ -1,31 +1,52 @@
-import React, { useState } from 'react';
-import { StyleSheet, View, Text, FlatList, Pressable, TouchableOpacity, Dimensions } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { StyleSheet, View, Text, FlatList, Dimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { getUserRecipes } from '../services/DbService';
+import { auth } from '../firebase'; // assume you have this to get the current logged in user
 
 const { width, height } = Dimensions.get('window');
 
 export default function HistoryScreen({ navigation }) {
-  // State for saved messages
-  const [savedMessages, setSavedMessages] = useState([
-    { id: '1', text: 'Pasta recipe: Ingredients: pasta, tomatoes, garlic...', date: '2024-10-16' },
-    { id: '2', text: 'Salad recipe: Ingredients: lettuce, cucumber, olive oil...', date: '2024-10-15' },
-  ]);
+  // State for saved recipes
+  const [savedRecipes, setSavedRecipes] = useState([]);
+  
+  // Fetch the user's recipes when the screen loads
+  useEffect(() => {
+    const fetchRecipes = async () => {
+      const loggedEmail = auth.currentUser?.email; // Retrieve the current user's email
+      if (loggedEmail) {
+        const recipes = await getUserRecipes(loggedEmail);
+        setSavedRecipes(recipes); // Set the fetched recipes
+      }
+    };
 
-  const renderMessage = ({ item }) => (
-    <View style={styles.messageItem}>
-      <Text style={styles.messageText}>{item.text}</Text>
-      <Text style={styles.messageDate}>{item.date}</Text>
-    </View>
-  );
+    fetchRecipes(); // Call the fetch function
+  }, []); // Empty dependency array ensures this runs once when the component mounts
+
+  // Render individual recipe items
+  const renderRecipe = ({ item }) => {
+    // Convert Firestore Timestamp to a readable date string
+    const dateCreated = item.dateCreated?.toDate().toLocaleDateString() || 'Unknown date';
+  
+    return (
+      <View style={styles.recipeItem}>
+        <Text style={styles.recipeName}>{item.name}</Text>
+        <Text style={styles.recipeText}>{item.response}</Text>
+        <Text style={styles.recipeDate}>{dateCreated}</Text>
+      </View>
+    );
+  };
+  
 
   return (
     <SafeAreaView style={styles.container}>
       <Text style={styles.title}>Saved Recipes</Text>
       
+      {/* Display recipes in a FlatList */}
       <FlatList
-        data={savedMessages}
+        data={savedRecipes}
         keyExtractor={item => item.id}
-        renderItem={renderMessage}
+        renderItem={renderRecipe}
         contentContainerStyle={{ paddingBottom: 20 }}
       />
     </SafeAreaView>
@@ -45,7 +66,7 @@ const styles = StyleSheet.create({
     color: '#e8f17f',
     marginBottom: 20,
   },
-  messageItem: {
+  recipeItem: {
     backgroundColor: '#01172f',
     borderRadius: 15,
     padding: 15,
@@ -56,22 +77,17 @@ const styles = StyleSheet.create({
     shadowRadius: 5,
     elevation: 5,
   },
-  messageText: {
+  recipeText: {
     color: '#fff',
     fontSize: width * 0.045,
     marginBottom: 5,
   },
-  messageDate: {
+  recipeDate: {
     color: '#aaa',
     fontSize: width * 0.035,
     textAlign: 'right',
   },
-  navigationContainer: {
-    marginTop: 20,
-    alignItems: 'center',
-  },
-  navText: {
-    color: '#D1AC00',
-    fontSize: width * 0.04,
-  },
+  recipeName: {
+    color: '#aaa'
+  }
 });
