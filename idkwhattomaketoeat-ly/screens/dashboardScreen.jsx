@@ -4,19 +4,17 @@ import React, { useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { callGPT35Turbo } from '../services/GPTHolla'; 
 import { Ionicons } from '@expo/vector-icons';
-import { saveRecipeToDB } from '../services/DbService';
+import { saveRecipeToDB } from '../services/DbService'; // Now using the loggedEmail from the service directly
 
-// gets dimensions for the stylesheet
+// Gets dimensions for the stylesheet
 const { width, height } = Dimensions.get('window');
 
 function DashboardChatScreen() {
-
   const [prompt, setPrompt] = useState('');
   const [modalVisible, setModalVisible] = useState(false);
   const [messages, setMessages] = useState([
     { text: 'Hello! What would you like to cook today?', fromAI: true }
   ]);
-
 
   // Sends user message and gets AI response
   const handleSend = async () => {
@@ -46,7 +44,8 @@ function DashboardChatScreen() {
 
   // Function to save the GPT-3 response to Firestore
   const handleSave = async (index, message) => {
-    const success = await saveRecipeToDB('Recipe', message.text);
+    const recipeName = `Recipe ${index}`; 
+    const success = await saveRecipeToDB(recipeName, message.text);
     if (success) {
       // Mark the message as saved in the state
       const updatedMessages = [...messages];
@@ -68,14 +67,12 @@ function DashboardChatScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-
       {/* Settings Button */}
       <TouchableOpacity style={styles.settingsButton} onPress={() => setModalVisible(true)}>
         <Text style={styles.settingsText}>⚙️</Text>
       </TouchableOpacity>
 
       <View style={styles.chatContainer}>
-
         {/* Where the messages actually show */}
         <ScrollView style={styles.messagesContainer} contentContainerStyle={{ paddingBottom: 20 }}>
           {messages.map((message, index) => (
@@ -90,11 +87,10 @@ function DashboardChatScreen() {
 
               {/* Show save button only for GPT responses (except the default message) */}
               {message.fromAI && !message.saved && index > 0 && (
-                <TouchableOpacity style={{marginTop: 8, marginRight: 160}} onPress={() => handleSave(index, message)}>
+                <TouchableOpacity style={{ marginTop: 8, marginRight: 160 }} onPress={() => handleSave(index, message)}>
                   <Ionicons name="bookmark" color="#aaa" size={28} />
                 </TouchableOpacity>
               )}
-
             </View>
           ))}
         </ScrollView>
@@ -112,7 +108,6 @@ function DashboardChatScreen() {
             <Text style={styles.sendButtonText}>Send</Text>
           </TouchableOpacity>
         </KeyboardAvoidingView>
-
       </View>
 
       {/* Modal for Settings */}

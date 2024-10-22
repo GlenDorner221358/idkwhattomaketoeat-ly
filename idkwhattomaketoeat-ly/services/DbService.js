@@ -105,23 +105,27 @@ export const getUserRecipes = async (loggedEmail) => {
 
 
 // Save new recipe to the db
-export const saveRecipeToDB = async (loggedEmail, recipeName, gptResponse) => {
+export const saveRecipeToDB = async (recipeName, gptResponse) => {
     try {
-      // Create a reference to the "recipes" subcollection under the user's document
-      const recipesSubcollectionRef = collection(db, "users", loggedEmail, "recipes");
-  
-      // Add a new recipe document
-      const docRef = await addDoc(recipesSubcollectionRef, {
-        name: recipeName,
-        response: gptResponse,
-        dateCreated: Timestamp.now(), // Firestore timestamp
-      });
-  
-      console.log("Recipe saved with ID: ", docRef.id);
-      return true;
+        if (!loggedEmail) {
+            throw new Error('User is not logged in. Cannot save recipe.');
+        }
+
+        // Create a reference to the "recipes" subcollection under the user's document
+        const recipesSubcollectionRef = collection(db, "users", loggedEmail, "recipes");
+
+        // Add a new recipe document
+        const docRef = await addDoc(recipesSubcollectionRef, {
+            name: recipeName,
+            response: gptResponse,
+            dateCreated: Timestamp.now(), // Firestore timestamp
+        });
+
+        console.log("Recipe saved with ID: ", docRef.id);
+        return true;
     } catch (error) {
-      console.error("Error saving recipe: ", error);
-      return false;
+        console.error("Error saving recipe: ", error);
+        return false;
     }
 };
 
