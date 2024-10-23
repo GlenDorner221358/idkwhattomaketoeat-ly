@@ -2,15 +2,15 @@ import React, { useState, useEffect } from 'react';
 import { StyleSheet, View, Text, FlatList, TouchableOpacity, Dimensions, RefreshControl } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { getUserRecipes } from '../services/DbService';
-import { auth } from '../firebase'; // assume you have this to get the current logged-in user
+import { auth } from '../firebase'; 
 
 const { width, height } = Dimensions.get('window');
 
-export default function HistoryScreen({ navigation }) {
-  // State for saved recipes
+export default function HistoryScreen() {
+
   const [savedRecipes, setSavedRecipes] = useState([]);
-  const [refreshing, setRefreshing] = useState(false); // State for refreshing
-  const [expandedRecipeId, setExpandedRecipeId] = useState(null); // Track which recipe is expanded
+  const [refreshing, setRefreshing] = useState(false); 
+  const [expandedRecipeId, setExpandedRecipeId] = useState(null); 
 
   // Function to fetch the user's recipes
   const fetchRecipes = async () => {
@@ -21,16 +21,18 @@ export default function HistoryScreen({ navigation }) {
     }
   };
 
+
   // Fetch the user's recipes when the screen loads
   useEffect(() => {
-    fetchRecipes(); // Call the fetch function
-  }, []); // Empty dependency array ensures this runs once when the component mounts
+    fetchRecipes();
+  }, []); 
 
-  // Handle pull-to-refresh action
+
+  // Pull-to-refresh action
   const onRefresh = async () => {
     setRefreshing(true);
-    await fetchRecipes(); // Re-fetch recipes
-    setRefreshing(false); // Stop the refreshing animation
+    await fetchRecipes(); 
+    setRefreshing(false); 
   };
 
   // Toggle the expanded/collapsed state of a recipe
@@ -64,7 +66,6 @@ export default function HistoryScreen({ navigation }) {
     <SafeAreaView style={styles.container}>
       <Text style={styles.title}>Saved Recipes</Text>
 
-      {/* Display recipes in a FlatList with pull-to-refresh */}
       <FlatList
         data={savedRecipes}
         keyExtractor={item => item.id}
@@ -74,6 +75,7 @@ export default function HistoryScreen({ navigation }) {
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
       />
+      
     </SafeAreaView>
   );
 }

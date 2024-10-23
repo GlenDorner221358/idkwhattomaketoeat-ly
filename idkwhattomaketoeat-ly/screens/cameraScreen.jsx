@@ -6,6 +6,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 const { width, height } = Dimensions.get('window');
 
 export default function CameraScreen({ navigation }) {
+
   const [permission, requestPermission] = Camera.useCameraPermissions();
   const [cameraRef, setCameraRef] = useState(null);
   const [previewUri, setPreviewUri] = useState(null);
@@ -17,9 +18,9 @@ export default function CameraScreen({ navigation }) {
   if (!permission.granted) {
     return (
       <View style={styles.permissionContainer}>
-        <Text style={styles.permissionText}>We need your permission to show the camera</Text>
+        <Text style={styles.permissionText}>We need your permission to use the camera</Text>
         <TouchableOpacity style={styles.permissionButton} onPress={requestPermission}>
-          <Text style={styles.permissionButtonText}>Grant Permission</Text>
+          <Text style={styles.permissionButtonText}>Allow</Text>
         </TouchableOpacity>
       </View>
     );
@@ -32,15 +33,21 @@ export default function CameraScreen({ navigation }) {
     }
   };
 
+  const retakePicture = () => {
+    setPreviewUri(null); // Reset the photo preview URI
+  };
+
   const addToChat = () => {
-    // Navigate back to dashboard and pass the image URI for chat usage
     if (previewUri) {
-      navigation.navigate('Dashboard', { imageUri: previewUri });
+      // Navigate to the dashboard and pass the image URI
+      navigation.navigate('dashboard', { imageUri: previewUri });
     }
   };
 
   return (
     <SafeAreaView style={styles.container}>
+
+      {/* camera box */}
       <View style={styles.cameraContainer}>
         {previewUri ? (
           <View style={styles.preview}>
@@ -51,9 +58,16 @@ export default function CameraScreen({ navigation }) {
         )}
       </View>
 
+      {/* take photo button */}
       <TouchableOpacity style={styles.button} onPress={previewUri ? addToChat : takePicture}>
         <Text style={styles.buttonText}>{previewUri ? 'Add to Chat' : 'Take Picture'}</Text>
       </TouchableOpacity>
+
+      {/* "Retake Photo" button */}
+      <TouchableOpacity style={styles.retakeButton} onPress={retakePicture}>
+        <Text style={styles.buttonText}>Retake Photo</Text>
+      </TouchableOpacity>
+
     </SafeAreaView>
   );
 }
@@ -102,6 +116,20 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 5,
     elevation: 5,
+  },
+  retakeButton: {
+    width: width * 0.5,
+    height: height * 0.07,
+    backgroundColor: '#8cbcb9',
+    borderRadius: 25,
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+    elevation: 5,
+    marginTop: 15
   },
   buttonText: {
     color: '#333',

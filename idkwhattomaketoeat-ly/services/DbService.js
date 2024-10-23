@@ -75,8 +75,6 @@ export const handleRegister = async (name, email, password) => {
     }
 };
 
-
-
 // FIRESTORE ||||||||||
 
 // Fetch recipes by email

@@ -1,67 +1,123 @@
-// IMPORTS
-import { StyleSheet, View, Text, TextInput, ScrollView, TouchableOpacity, Dimensions, KeyboardAvoidingView, Modal, Pressable } from 'react-native';
-import React, { useState } from 'react';
+import { View, Text, TextInput, ScrollView, TouchableOpacity, Dimensions, KeyboardAvoidingView, Modal, Pressable } from 'react-native';
+import React, { useState, useEffect } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { callGPT35Turbo } from '../services/GPTHolla'; 
 import { Ionicons } from '@expo/vector-icons';
-import { saveRecipeToDB } from '../services/DbService'; // Now using the loggedEmail from the service directly
+import { useRoute } from '@react-navigation/native';
+import { callGPT35Turbo, analyzeImageForIngredients } from '../services/GPTHolla'; 
+import { saveRecipeToDB } from '../services/DbService';
+import { signOut } from 'firebase/auth';
+import { auth } from '../firebase'; 
+import { StyleSheet } from 'react-native';
+
 
 // Gets dimensions for the stylesheet
 const { width, height } = Dimensions.get('window');
 
-function DashboardChatScreen() {
+
+export default function DashboardChatScreen({ navigation }) {
+
+  const route = useRoute();
+
+  // Get the image URI passed from camera
+  const { imageUri } = route.params || {}; 
+
   const [prompt, setPrompt] = useState('');
   const [modalVisible, setModalVisible] = useState(false);
+
+  // used for the messages that are displayed
   const [messages, setMessages] = useState([
     { text: 'Hello! What would you like to cook today?', fromAI: true }
   ]);
 
-  // Sends user message and gets AI response
-  const handleSend = async () => {
-    if (prompt.trim()) {
-      // Add user's message
-      setMessages([...messages, { text: prompt, fromAI: false }]);
-      setPrompt('');
 
-      try {
-        // Call GPT-3.5 Turbo API
-        const gptResponse = await callGPT35Turbo(prompt);
-        
-        // Add AI's response
-        setMessages(prevMessages => [
-          ...prevMessages,
-          { text: gptResponse, fromAI: true }
-        ]);
-      } catch (error) {
-        console.error('Error calling GPT-3.5 Turbo:', error);
-        setMessages(prevMessages => [
-          ...prevMessages,
-          { text: 'Something went wrong, please try again later.', fromAI: true }
-        ]);
-      }
+  // Sends text message and gets AI response
+  const handleSend = async () => {
+
+    // Don't send empty messages
+    if (!prompt.trim()) return; 
+
+    setMessages(prevMessages => [
+      ...prevMessages,
+      { text: prompt, fromAI: false }
+    ]);
+    setPrompt('');
+
+    try {
+      const gptResponse = await callGPT35Turbo(prompt);
+      setMessages(prevMessages => [
+        ...prevMessages,
+        { text: gptResponse, fromAI: true }
+      ]);
+    } catch (error) {
+      console.error('Error getting GPT response:', error);
+      setMessages(prevMessages => [
+        ...prevMessages,
+        { text: 'Something went wrong. Please try again.', fromAI: true }
+      ]);
     }
   };
 
-  // Function to save the GPT-3 response to Firestore
+  // Sends user message and gets AI response
+  const handleImageSend = async (imageUri) => {
+    try {
+
+      // Display the image and user message in the chat
+      setMessages(prevMessages => [
+        ...prevMessages,
+        { text: 'Please make a recipe using only the ingredients in the provided photo', image: imageUri, fromAI: false }
+      ]);
+
+      const ingredients = await analyzeImageForIngredients(imageUri);
+
+      // Construct a prompt for GPT with the ingredients
+      const prompt = `Here is a list of ingredients: ${ingredients.join(', ')}. Can you suggest a recipe using these ingredients?`;
+
+      // Get GPT-3.5 Turbo's response
+      const gptResponse = await callGPT35Turbo(prompt);
+
+      // Add AI's response to messages
+      setMessages(prevMessages => [
+        ...prevMessages,
+        { text: gptResponse, fromAI: true }
+      ]);
+    } catch (error) {
+      console.error('Error generating recipe:', error);
+      setMessages(prevMessages => [
+        ...prevMessages,
+        { text: 'Something went wrong while analyzing the image. Please try again.', fromAI: true }
+      ]);
+    }
+  };
+
+  // Trigger the image analysis when the imageUri is passed
+  useEffect(() => {
+    if (imageUri) {
+      handleImageSend(imageUri); 
+    }
+  }, [imageUri]);
+
+
+  // Save the GPT-3 response to Firestore
   const handleSave = async (index, message) => {
     const recipeName = `Recipe ${index}`; 
     const success = await saveRecipeToDB(recipeName, message.text);
     if (success) {
-      // Mark the message as saved in the state
       const updatedMessages = [...messages];
-      updatedMessages[index].saved = true;
+
+      // Mark the message as saved
+      updatedMessages[index].saved = true; 
       setMessages(updatedMessages);
     }
   };
 
-  // Handles the firebase signout
+  // Handles Firebase signout
   const handleSignOut = () => {
     signOut(auth)
       .then(() => {
         navigation.replace('Login');
       })
       .catch((error) => {
-        console.error('Error signing out: ', error);
+        console.error('Error signing out:', error);
       });
   };
 
@@ -72,8 +128,9 @@ function DashboardChatScreen() {
         <Text style={styles.settingsText}>⚙️</Text>
       </TouchableOpacity>
 
+      {/* Chat Messages */}
       <View style={styles.chatContainer}>
-        {/* Where the messages actually show */}
+        
         <ScrollView style={styles.messagesContainer} contentContainerStyle={{ paddingBottom: 20 }}>
           {messages.map((message, index) => (
             <View
@@ -85,9 +142,9 @@ function DashboardChatScreen() {
             >
               <Text style={styles.messageText}>{message.text}</Text>
 
-              {/* Show save button only for GPT responses (except the default message) */}
+              {/* Show save button only for AI responses (except the default message) */}
               {message.fromAI && !message.saved && index > 0 && (
-                <TouchableOpacity style={{ marginTop: 8, marginRight: 160 }} onPress={() => handleSave(index, message)}>
+                <TouchableOpacity style={{ marginTop: 8 }} onPress={() => handleSave(index, message)}>
                   <Ionicons name="bookmark" color="#aaa" size={28} />
                 </TouchableOpacity>
               )}
@@ -110,7 +167,7 @@ function DashboardChatScreen() {
         </KeyboardAvoidingView>
       </View>
 
-      {/* Modal for Settings */}
+      {/* Settings Modal */}
       <Modal
         animationType="slide"
         transparent={true}
@@ -133,8 +190,8 @@ function DashboardChatScreen() {
   );
 }
 
-export default DashboardChatScreen;
 
+// stylesheet
 const styles = StyleSheet.create({
   container: {
     flex: 1,
