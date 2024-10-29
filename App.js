@@ -13,32 +13,52 @@ import { auth } from './firebase';
 import { Ionicons } from '@expo/vector-icons';
 import { onAuthStateChanged } from 'firebase/auth';
 
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
 
 export default function App() {
 
   const [loggedIn, setLoggedIn] = useState(false)
+  const [isFirstLaunch, setIsFirstLaunch] = useState(null);
+
+  
 
   useEffect(() => {
+    // Check onboarding status
+    const checkFirstLaunch = async () => {
+      const hasLaunched = await AsyncStorage.getItem("hasLaunched");
+      if (hasLaunched === null) {
+        await AsyncStorage.setItem("hasLaunched", "true");
+        setIsFirstLaunch(true);
+      } else {
+        setIsFirstLaunch(false);
+      }
+    };
+
+    checkFirstLaunch();
+
+    // Firebase auth listener for login persistence
     const unsubscribe = onAuthStateChanged(auth, (user) => {
-    if (user) {
-      setLoggedIn(true)
-      console.log("User logged in..." + user.email)
-    } else {
-      setLoggedIn(false)
-    }
-  })
-    return unsubscribe 
-  })
+      setLoggedIn(!!user);
+    });
+    return unsubscribe;
+  }, []);
+
+  if (isFirstLaunch === null) {
+    return null; // Render nothing while AsyncStorage is checked
+  }
 
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName="login" screenOptions={{headerShown: false}}>
-        {loggedIn ? (
+      <Stack.Navigator initialRouteName="login" screenOptions={{ headerShown: false }}>
+        {isFirstLaunch && !loggedIn ? (
+          <Stack.Screen name="onboarding" component={OnboardingScreen} />
+        ) : loggedIn ? (
           <Stack.Screen name="main">
             {() => (
-              <Tab.Navigator screenOptions={{tabBarStyle: {backgroundColor: "#24282e"}}}>
+              <Tab.Navigator screenOptions={{ tabBarStyle: { backgroundColor: "#24282e" } }}>
                 <Tab.Screen
                   name="history"
                   component={HistoryScreen}
@@ -74,8 +94,6 @@ export default function App() {
                     ),
                   }}
                 />
-
-
               </Tab.Navigator>
             )}
           </Stack.Screen>
