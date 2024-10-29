@@ -2,7 +2,7 @@ import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../firebase";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { db } from "../firebase";
-import { collection, addDoc, setDoc, getDocs, getDoc, doc, query, orderBy, where, updateDoc, Timestamp } from "firebase/firestore";
+import { collection, addDoc, setDoc, getDocs, doc, orderBy, updateDoc, Timestamp, deleteDoc } from "firebase/firestore";
 
 var loggedEmail = "";
 
@@ -48,7 +48,7 @@ export const handleRegister = async (name, email, password) => {
             // Create an initial document in the 'recipes' collection
             const recipeRef = await addDoc(collection(db, "users", loggedEmail, "recipes"), {
                 name: "First Recipe",
-                response: "This is a placeholder for your first recipe!",
+                response: "This is a placeholder for your first recipe! You can delete me whenever you want to!",
                 dateCreated: new Date()
             });
             console.log("Recipes collection created with initial document, ID: ", recipeRef.id);
@@ -128,15 +128,30 @@ export const saveRecipeToDB = async (recipeName, gptResponse) => {
 };
 
 
-// Edit USER by id
-export const editUserById = async (id, updatedData) => {
+// Update recipe title
+export const updateRecipeTitle = async (recipeId, newTitle) => {
     try {
-        const docRef = doc(db, "users", id);
-        await updateDoc(docRef, updatedData);
-        console.log("Document updated with ID: ", id);
+        loggedEmail = auth.currentUser?.email;
+        const recipeRef = doc(db, "users", loggedEmail, "recipes", recipeId);
+        await updateDoc(recipeRef, { name: newTitle });
+        console.log(`Recipe title updated successfully: ${recipeId}`);
         return true;
-    } catch (e) {
-        console.error("Error updating document", e);
+    } catch (error) {
+        console.error("Error updating recipe title:", error);
         return false;
     }
-}
+};
+
+// Delete recipe
+export const deleteRecipe = async (recipeId) => {
+    try {
+        loggedEmail = auth.currentUser?.email;
+        const recipeRef = doc(db, "users", loggedEmail, "recipes", recipeId);
+        await deleteDoc(recipeRef);
+        console.log(`Recipe deleted successfully: ${recipeId}`);
+        return true;
+    } catch (error) {
+        console.error("Error deleting recipe:", error);
+        return false;
+    }
+};

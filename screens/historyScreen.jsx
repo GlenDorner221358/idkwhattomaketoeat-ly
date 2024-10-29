@@ -1,17 +1,20 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, View, Text, FlatList, TouchableOpacity, Dimensions, RefreshControl, ActivityIndicator } from 'react-native';
+import { StyleSheet, View, Text, FlatList, TouchableOpacity, Modal, Button, Dimensions, RefreshControl, ActivityIndicator, TextInput } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { getUserRecipes } from '../services/DbService';
+import { getUserRecipes, updateRecipeTitle, deleteRecipe } from '../services/DbService';
 import { auth } from '../firebase'; 
 
 const { width, height } = Dimensions.get('window');
 
 export default function HistoryScreen() {
-
   const [savedRecipes, setSavedRecipes] = useState([]);
   const [refreshing, setRefreshing] = useState(false); 
   const [expandedRecipeId, setExpandedRecipeId] = useState(null); 
   const [isLoading, setIsLoading] = useState(true);
+  const [searchText, setSearchText] = useState('');
+  const [editModalVisible, setEditModalVisible] = useState(false);
+  const [selectedRecipe, setSelectedRecipe] = useState(null);
+  const [newTitle, setNewTitle] = useState('');
 
   // Function to fetch the user's recipes
   const fetchRecipes = async () => {
@@ -41,6 +44,31 @@ export default function HistoryScreen() {
     setExpandedRecipeId(prevId => (prevId === id ? null : id));
   };
 
+  // Filter recipes based on search text
+  const filteredRecipes = savedRecipes.filter(recipe => 
+    recipe.name.toLowerCase().includes(searchText.toLowerCase())
+  );
+
+  // Update a recipe's title
+  const handleUpdate = async () => {
+    if (selectedRecipe) {
+      const success = await updateRecipeTitle(selectedRecipe.id, newTitle);
+      if (success) {
+        setEditModalVisible(false);
+        fetchRecipes(); // Refresh recipes
+      }
+    }
+  };
+
+  // Delete a recipe
+  const handleDelete = async (id) => {
+    const success = await deleteRecipe(id);
+    if (success) {
+      fetchRecipes(); // Refresh recipes
+    }
+  };
+
+
   // Render individual recipe items
   const renderRecipe = ({ item }) => {
     const isExpanded = expandedRecipeId === item.id;
@@ -50,14 +78,30 @@ export default function HistoryScreen() {
       <TouchableOpacity onPress={() => toggleRecipeExpand(item.id)}>
         <View style={styles.recipeItem}>
           <Text style={styles.recipeName}>{item.name}</Text>
-          
-          {/* Show a truncated version of the response if not expanded */}
           <Text style={styles.recipeText}>
             {isExpanded ? item.response : `${item.response.slice(0, 50)}...`}
           </Text>
 
-          {/* Display the creation date */}
-          <Text style={styles.recipeDate}>{dateCreated}</Text>
+          {/* Conditional display of Edit and Delete buttons when expanded */}
+          {isExpanded && (
+            <View style={styles.buttonContainer}>
+                {/* Update Button */}
+                <TouchableOpacity onPress={() => {
+                    setSelectedRecipe(item);
+                    setNewTitle(item.name);
+                    setEditModalVisible(true);
+                }}>
+                    <Text style={styles.updateButton}>Edit</Text>
+                </TouchableOpacity>
+
+                {/* Delete Button */}
+                <TouchableOpacity onPress={() => handleDeleteRecipe(item.id)}>
+                    <Text style={styles.deleteButton}>Delete</Text>
+                </TouchableOpacity>
+            </View>
+          )}
+
+          <Text style={styles.recipeDate}>{item.dateCreated?.toDate().toLocaleDateString()}</Text>
         </View>
       </TouchableOpacity>
     );
@@ -67,12 +111,20 @@ export default function HistoryScreen() {
     <SafeAreaView style={styles.container}>
       <Text style={styles.title}>Saved Recipes</Text>
 
+      {/* Search Bar */}
+      <TextInput
+        style={styles.searchBar}
+        placeholder="Search recipes..."
+        value={searchText}
+        onChangeText={setSearchText}
+      />
+
       {isLoading ? (
         // Show loading indicator when loading data
         <ActivityIndicator size="large" color="#e8f17f" style={styles.loadingIndicator} />
       ) : (
         <FlatList
-          data={savedRecipes}
+          data={filteredRecipes}
           keyExtractor={item => item.id}
           renderItem={renderRecipe}
           contentContainerStyle={{ paddingBottom: 20 }}
@@ -81,6 +133,22 @@ export default function HistoryScreen() {
           }
         />
       )}
+
+      {/* Edit Modal for Updating Recipe Title */}
+      <Modal visible={editModalVisible} animationType="slide" transparent={true}>
+        <SafeAreaView style={styles.modalOverlay}>
+          <SafeAreaView style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Edit Recipe Title</Text>
+            <TextInput
+              style={styles.modalInput}
+              value={newTitle}
+              onChangeText={setNewTitle}
+            />
+            <Button title="Update" onPress={handleUpdate} />
+            <Button title="Cancel" onPress={() => setEditModalVisible(false)} />
+          </SafeAreaView>
+        </SafeAreaView>
+      </Modal>
       
     </SafeAreaView>
   );
@@ -127,5 +195,43 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-  }
+  },
+  searchBar: {
+    height: 40,
+    borderColor: '#ddd',
+    borderWidth: 1,
+    paddingLeft: 10,
+    margin: 10,
+    borderRadius: 5,
+  },
+  updateButton: {
+    color: '#0066cc',
+    marginTop: 5,
+  },
+  deleteButton: {
+    color: '#cc0000',
+    marginTop: 5,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContent: {
+    width: '80%',
+    backgroundColor: 'white',
+    padding: 20,
+    borderRadius: 10,
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
+  modalInput: {
+    borderBottomWidth: 1,
+    borderColor: '#ddd',
+    marginBottom: 20,
+  },
 });
