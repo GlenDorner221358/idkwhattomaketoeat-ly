@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, View, Text, FlatList, TouchableOpacity, Dimensions, RefreshControl } from 'react-native';
+import { StyleSheet, View, Text, FlatList, TouchableOpacity, Dimensions, RefreshControl, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { getUserRecipes } from '../services/DbService';
 import { auth } from '../firebase'; 
@@ -11,22 +11,23 @@ export default function HistoryScreen() {
   const [savedRecipes, setSavedRecipes] = useState([]);
   const [refreshing, setRefreshing] = useState(false); 
   const [expandedRecipeId, setExpandedRecipeId] = useState(null); 
+  const [isLoading, setIsLoading] = useState(true);
 
   // Function to fetch the user's recipes
   const fetchRecipes = async () => {
+    setIsLoading(true); // Start loading
     const loggedEmail = auth.currentUser?.email; // Retrieve the current user's email
     if (loggedEmail) {
       const recipes = await getUserRecipes(loggedEmail);
       setSavedRecipes(recipes); // Set the fetched recipes
     }
+    setIsLoading(false); // End loading
   };
-
 
   // Fetch the user's recipes when the screen loads
   useEffect(() => {
     fetchRecipes();
   }, []); 
-
 
   // Pull-to-refresh action
   const onRefresh = async () => {
@@ -66,15 +67,20 @@ export default function HistoryScreen() {
     <SafeAreaView style={styles.container}>
       <Text style={styles.title}>Saved Recipes</Text>
 
-      <FlatList
-        data={savedRecipes}
-        keyExtractor={item => item.id}
-        renderItem={renderRecipe}
-        contentContainerStyle={{ paddingBottom: 20 }}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-        }
-      />
+      {isLoading ? (
+        // Show loading indicator when loading data
+        <ActivityIndicator size="large" color="#e8f17f" style={styles.loadingIndicator} />
+      ) : (
+        <FlatList
+          data={savedRecipes}
+          keyExtractor={item => item.id}
+          renderItem={renderRecipe}
+          contentContainerStyle={{ paddingBottom: 20 }}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          }
+        />
+      )}
       
     </SafeAreaView>
   );
@@ -116,5 +122,10 @@ const styles = StyleSheet.create({
   },
   recipeName: {
     color: '#aaa'
+  },
+  loadingIndicator: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   }
 });
