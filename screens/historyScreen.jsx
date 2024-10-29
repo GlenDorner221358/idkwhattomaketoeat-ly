@@ -4,6 +4,11 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { getUserRecipes, updateRecipeTitle, deleteRecipe } from '../services/DbService';
 import { auth } from '../firebase'; 
 
+// icons
+import FontAwesome from '@expo/vector-icons/FontAwesome';
+import Feather from '@expo/vector-icons/Feather';
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+
 const { width, height } = Dimensions.get('window');
 
 export default function HistoryScreen() {
@@ -85,19 +90,19 @@ export default function HistoryScreen() {
           {/* Conditional display of Edit and Delete buttons when expanded */}
           {isExpanded && (
             <View style={styles.buttonContainer}>
+                {/* Delete Button */}
+                <TouchableOpacity onPress={() => handleDelete(item.id)}>
+                  <MaterialIcons name="delete" size={32} color="red" />
+                </TouchableOpacity>
+
                 {/* Update Button */}
                 <TouchableOpacity onPress={() => {
                     setSelectedRecipe(item);
                     setNewTitle(item.name);
                     setEditModalVisible(true);
                 }}>
-                    <Text style={styles.updateButton}>Edit</Text>
-                </TouchableOpacity>
-
-                {/* Delete Button */}
-                <TouchableOpacity onPress={() => handleDeleteRecipe(item.id)}>
-                    <Text style={styles.deleteButton}>Delete</Text>
-                </TouchableOpacity>
+                    <Feather name="edit" size={30} color="#e8f17f" />
+                </TouchableOpacity> 
             </View>
           )}
 
@@ -111,13 +116,18 @@ export default function HistoryScreen() {
     <SafeAreaView style={styles.container}>
       <Text style={styles.title}>Saved Recipes</Text>
 
+      
+
       {/* Search Bar */}
-      <TextInput
-        style={styles.searchBar}
-        placeholder="Search recipes..."
-        value={searchText}
-        onChangeText={setSearchText}
-      />
+      <View style={styles.searchBarContainer}>
+        <FontAwesome name="search" size={20} color="black" style={styles.searchIcon} />
+        <TextInput
+          style={styles.searchBar}
+          placeholder="Search recipes..."
+          value={searchText}
+          onChangeText={setSearchText}
+        />
+      </View> 
 
       {isLoading ? (
         // Show loading indicator when loading data
@@ -138,14 +148,17 @@ export default function HistoryScreen() {
       <Modal visible={editModalVisible} animationType="slide" transparent={true}>
         <SafeAreaView style={styles.modalOverlay}>
           <SafeAreaView style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Edit Recipe Title</Text>
+            <Text style={styles.modalTitle}>New Recipe Title</Text>
             <TextInput
               style={styles.modalInput}
               value={newTitle}
               onChangeText={setNewTitle}
             />
-            <Button title="Update" onPress={handleUpdate} />
-            <Button title="Cancel" onPress={() => setEditModalVisible(false)} />
+            <View style={styles.modalButtons}>
+              <Button title="Confirm" onPress={handleUpdate} />
+              <Button title="Cancel" onPress={() => setEditModalVisible(false)} />
+            </View>
+
           </SafeAreaView>
         </SafeAreaView>
       </Modal>
@@ -165,7 +178,7 @@ const styles = StyleSheet.create({
     fontSize: width * 0.08,
     fontWeight: 'bold',
     color: '#e8f17f',
-    marginBottom: 20,
+    marginBottom: 10,
   },
   recipeItem: {
     backgroundColor: '#01172f',
@@ -201,16 +214,14 @@ const styles = StyleSheet.create({
     borderColor: '#ddd',
     borderWidth: 1,
     paddingLeft: 10,
-    margin: 10,
+    marginBottom: 20,
     borderRadius: 5,
+    backgroundColor: "gray"
   },
-  updateButton: {
-    color: '#0066cc',
-    marginTop: 5,
-  },
-  deleteButton: {
-    color: '#cc0000',
-    marginTop: 5,
+  buttonContainer: {
+    flexDirection: 'row',
+    marginTop: 10,
+    gap: 10,
   },
   modalOverlay: {
     flex: 1,
@@ -220,12 +231,13 @@ const styles = StyleSheet.create({
   },
   modalContent: {
     width: '80%',
-    backgroundColor: 'white',
+    backgroundColor: '#01172f',
     padding: 20,
     borderRadius: 10,
   },
   modalTitle: {
     fontSize: 18,
+    color: "white",
     fontWeight: 'bold',
     marginBottom: 10,
   },
@@ -233,5 +245,27 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderColor: '#ddd',
     marginBottom: 20,
+    color: "white"
+  }, 
+  modalButtons: {
+    flexDirection: "row",
+    gap: 71,
+  },
+  searchBarContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#f1f1f1', 
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 8,
+    marginBottom: 10,
+  },
+  searchIcon: {
+    marginRight: 7, 
+  },
+  searchBar: {
+    flex: 1, 
+    fontSize: 15,
+    paddingVertical: 0,
   },
 });
