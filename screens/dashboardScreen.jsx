@@ -114,7 +114,7 @@ export default function DashboardChatScreen({ navigation }) {
   const handleSignOut = () => {
     signOut(auth)
       .then(() => {
-        navigation.replace('Login');
+        navigation.replace('login');
       })
       .catch((error) => {
         console.error('Error signing out:', error);
