@@ -28,7 +28,7 @@ function RegisterScreen( {navigation} ) {
           placeholder="Username"
           placeholderTextColor="#aaa"
           onChangeText={newText => setUserName(newText)}
-          defaultValue={email}
+          defaultValue={username}
         />
         <TextInput
           style={styles.input}

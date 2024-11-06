@@ -52,7 +52,7 @@ export default function App() {
 
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName="login" screenOptions={{ headerShown: false }}>
+      <Stack.Navigator initialRoute="login" screenOptions={{ headerShown: false }}>
         {isFirstLaunch && !loggedIn ? (
           <Stack.Screen name="onboarding" component={OnboardingScreen} />
         ) : loggedIn ? (
