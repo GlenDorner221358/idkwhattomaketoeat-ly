@@ -3,73 +3,72 @@ import { auth } from "../firebase";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { db } from "../firebase";
 import { collection, addDoc, setDoc, getDocs, doc, updateDoc, Timestamp, deleteDoc } from "firebase/firestore";
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useState } from "react";
 
 var loggedEmail = "";
-
 
 // FIREBASE ||||||||||
 
 // Login
-export const handleLogin = (email, password) => {
-
-    signInWithEmailAndPassword(auth, email, password)
-    .then((userCredential) => {
-        // Signed in 
-        const user = userCredential.user;
-        console.log("Login from: " + user.email)
-        loggedEmail = user.email;
-    })
-    .catch((error) => {
-        const errorCode = error.code;
-        const errorMessage = error.message;
-        console.log(errorCode + errorMessage)
-    });
-
-}
-
-// Register
-export const handleRegister = async (name, email, password) => {
+export const handleLogin = async (email, password, setErrorMessage) => {
     try {
-        // Register the user
-        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-        const user = userCredential.user;
-        console.log("Registered: " + user.email);
-        loggedEmail = user.email; // Set loggedEmail after registration
-
-        // Firestore document creation
-        try {
-            // Create user document in the 'users' collection
-            await setDoc(doc(db, "users", loggedEmail), {
-                name: name,
-                email: loggedEmail,
-            });
-            console.log("User document written with ID: ", loggedEmail);
-
-            // Create an initial document in the 'recipes' collection
-            const recipeRef = await addDoc(collection(db, "users", loggedEmail, "recipes"), {
-                name: "First Recipe",
-                response: "This is a placeholder for your first recipe! You can delete me whenever you want to!",
-                dateCreated: new Date()
-            });
-            console.log("Recipes collection created with initial document, ID: ", recipeRef.id);
-
-            // Sign in the user automatically after successful registration
-            await signInWithEmailAndPassword(auth, email, password);
-            console.log("User logged in: " + loggedEmail);
-            
-            return true;
-        } catch (e) {
-            console.error("Error adding document", e);
-            return false;
-        }
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+      console.log("Login successful: " + user.email);
+  
+      // Store email for potential future use (avoid storing passwords)
+      await AsyncStorage.setItem("loggedEmail", email);
+  
+      setErrorMessage(''); // Clear any previous error messages
     } catch (error) {
-        const errorCode = error.code;
-        const errorMessage = error.message;
-        console.log(errorCode + errorMessage);
-        return false;
+      console.log("Login Error:", error.message);
+      setErrorMessage(error.message); // Set the error message from Firebase
     }
 };
 
+
+// Register
+export const handleRegister = async (name, email, password, setErrorMessage) => {
+    try {
+      // Register the user
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+      console.log("Registered successfully: " + user.email);
+  
+      // Store email for potential future use
+      await AsyncStorage.setItem("savedEmail", email);
+  
+      setErrorMessage(''); // Clear any previous error messages
+  
+      // Firestore document creation
+      try {
+        // Create user document in the 'users' collection
+        await setDoc(doc(db, "users", user.uid), {
+          name: name,
+          email: user.email,
+        });
+        console.log("User document created with ID:", user.uid);
+  
+        // Create an initial document in the 'recipes' collection
+        const recipeRef = await addDoc(collection(db, "users", user.uid, "recipes"), {
+          name: "Placeholder Recipe",
+          response: "Create a new recipe on the home screen! Or with the camera!",
+          dateCreated: new Date()
+        });
+        console.log("Initial recipe added with ID:", recipeRef.id);
+  
+        return true;
+      } catch (e) {
+        console.error("Error adding Firestore documents:", e);
+        return false;
+      }
+    } catch (error) {
+      console.log("Registration Error:", error.message);
+      setErrorMessage(error.message); // Set the error message from Firebase
+      return false;
+    }
+  };
 
 // FIRESTORE ||||||||||
 
@@ -100,13 +99,16 @@ export const getUserRecipes = async (loggedEmail) => {
 
 // Save new recipe to the db
 export const saveRecipeToDB = async (recipeName, gptResponse) => {
+
+    const deepLoggedEmail = await AsyncStorage.getItem("loggedEmail");
+
     try {
-        if (!loggedEmail) {
+        if (!deepLoggedEmail) {
             throw new Error('User is not logged in. Cannot save recipe.');
         }
 
         // Create a reference to the "recipes" subcollection under the user's document
-        const recipesSubcollectionRef = collection(db, "users", loggedEmail, "recipes");
+        const recipesSubcollectionRef = collection(db, "users", deepLoggedEmail, "recipes");
 
         // Add a new recipe document
         const docRef = await addDoc(recipesSubcollectionRef, {

@@ -1,3 +1,18 @@
+// App.js
+import React, { useEffect, useState } from 'react';
+import {
+  NavigationContainer
+} from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { Ionicons } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import {
+  onAuthStateChanged,
+} from 'firebase/auth';
+import { auth } from './firebase';
+
+// Import Screens
 import LoginScreen from './screens/loginScreen';
 import RegisterScreen from './screens/registerScreen';
 import OnboardingScreen from './screens/onboardingScreen';
@@ -5,65 +20,64 @@ import DashboardScreen from './screens/dashboardScreen';
 import HistoryScreen from './screens/historyScreen';
 import CameraScreen from './screens/cameraScreen';
 
-import { useEffect, useState } from 'react';
-import { NavigationContainer } from '@react-navigation/native';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { auth } from './firebase';
-import { Ionicons } from '@expo/vector-icons';
-import { onAuthStateChanged } from 'firebase/auth';
-
-import AsyncStorage from '@react-native-async-storage/async-storage';
-
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
 
 export default function App() {
-
-  const [loggedIn, setLoggedIn] = useState(false)
+  const [user, setUser] = useState(null);
   const [isFirstLaunch, setIsFirstLaunch] = useState(null);
-
-  
+  const [isLoading, setIsLoading] = useState(true); // To handle loading state
 
   useEffect(() => {
-    // Check onboarding status
-    const checkFirstLaunch = async () => {
-      const hasLaunched = await AsyncStorage.getItem("hasLaunched");
-      if (hasLaunched === null) {
-        await AsyncStorage.setItem("hasLaunched", "true");
-        setIsFirstLaunch(true);
-      } else {
-        setIsFirstLaunch(false);
+    const initialize = async () => {
+      try {
+        // Check if it's the first launch
+        const hasLaunched = await AsyncStorage.getItem("hasLaunched");
+        if (hasLaunched === null) {
+          await AsyncStorage.setItem("hasLaunched", "true");
+          setIsFirstLaunch(true);
+        } else {
+          setIsFirstLaunch(false);
+        }
+
+        // Listen for authentication state changes
+        const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+          setUser(currentUser);
+          setIsLoading(false);
+        });
+
+        return () => unsubscribe();
+      } catch (error) {
+        console.log("Initialization Error:", error);
+        setIsLoading(false);
       }
     };
 
-    checkFirstLaunch();
-
-    // Firebase auth listener for login persistence
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setLoggedIn(!!user);
-    });
-    return unsubscribe;
+    initialize();
   }, []);
 
-  if (isFirstLaunch === null) {
-    return null; // Render nothing while AsyncStorage is checked
+  if (isFirstLaunch === null || isLoading) {
+    return null; // You can render a splash screen or loader here
   }
 
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRoute="login" screenOptions={{ headerShown: false }}>
-        {isFirstLaunch && !loggedIn ? (
+      <Stack.Navigator screenOptions={{ headerShown: false }}>
+        {isFirstLaunch && !user ? (
           <Stack.Screen name="onboarding" component={OnboardingScreen} />
-        ) : loggedIn ? (
+        ) : user ? (
           <Stack.Screen name="main">
             {() => (
-              <Tab.Navigator screenOptions={{ tabBarStyle: { backgroundColor: "#24282e" } }}>
+              <Tab.Navigator
+                screenOptions={{
+                  tabBarStyle: { backgroundColor: "#24282e" },
+                  headerShown: false,
+                }}
+              >
                 <Tab.Screen
                   name="history"
                   component={HistoryScreen}
                   options={{
-                    headerShown: false,
                     tabBarShowLabel: false,
                     tabBarIcon: ({ color, size }) => (
                       <Ionicons name="book" color={color} size={size} />
@@ -75,7 +89,6 @@ export default function App() {
                   name="dashboard"
                   component={DashboardScreen}
                   options={{
-                    headerShown: false,
                     tabBarShowLabel: false,
                     tabBarIcon: ({ color, size }) => (
                       <Ionicons name="home" color={color} size={size} />
@@ -87,7 +100,6 @@ export default function App() {
                   name="camera"
                   component={CameraScreen}
                   options={{
-                    headerShown: false,
                     tabBarShowLabel: false,
                     tabBarIcon: ({ color, size }) => (
                       <Ionicons name="camera" color={color} size={size} />
@@ -108,4 +120,3 @@ export default function App() {
     </NavigationContainer>
   );
 }
-

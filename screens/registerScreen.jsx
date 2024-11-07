@@ -12,9 +12,10 @@ function RegisterScreen( {navigation} ) {
   const [username, setUserName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
 
   // REGISTER FUNCTION
-  const register = () => { handleRegister(username, email, password) }
+  const register = () => { handleRegister(username, email, password, setErrorMessage) }
 
   return (
     <SafeAreaView style={styles.container}>
@@ -45,6 +46,11 @@ function RegisterScreen( {navigation} ) {
           defaultValue={password}
           secureTextEntry={true}
         />
+        <Text
+          style={styles.errorMessage}
+        >
+          {errorMessage}
+        </Text>
       </View>
       <TouchableOpacity style={styles.button} onPress={register}>
         <Text style={styles.buttonText}>Register</Text>
@@ -131,4 +137,7 @@ const styles = StyleSheet.create({
     fontSize: width * 0.04,
     marginLeft: 5,
   },
+  errorMessage: {
+    color: "red",
+  }
 })

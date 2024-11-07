@@ -123,7 +123,7 @@ export default function HistoryScreen() {
         <FontAwesome name="search" size={20} color="black" style={styles.searchIcon} />
         <TextInput
           style={styles.searchBar}
-          placeholder="Search recipes..."
+          placeholder="Search saved recipes..."
           value={searchText}
           onChangeText={setSearchText}
         />

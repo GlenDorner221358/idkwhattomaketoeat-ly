@@ -12,9 +12,13 @@ function LoginScreen( {navigation} ) {
   // USERS EMAIL AND PASSWORD
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
 
-  //LOGIN FUNCTION
-  const login = () => { handleLogin(email, password) }
+  // LOGIN FUNCTION
+  const login = () => {
+    handleLogin(email, password, setErrorMessage);
+  };
+
 
   // consider use provider
   useEffect(() => {
@@ -55,6 +59,12 @@ function LoginScreen( {navigation} ) {
           defaultValue={password}
           secureTextEntry={true}
         />
+
+        <Text
+          style={styles.errorMessage}
+        >
+          {errorMessage}
+        </Text>
       </View>
       <TouchableOpacity style={styles.button} onPress={login}>
         <Text style={styles.buttonText}>Log In</Text>
@@ -140,4 +150,7 @@ const styles = StyleSheet.create({
     fontSize: width * 0.04,
     marginLeft: 5,
   },
+  errorMessage: {
+    color: "red",
+  }
 })
