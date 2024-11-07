@@ -26,7 +26,7 @@ const Stack = createNativeStackNavigator();
 export default function App() {
   const [user, setUser] = useState(null);
   const [isFirstLaunch, setIsFirstLaunch] = useState(null);
-  const [isLoading, setIsLoading] = useState(true); // To handle loading state
+  const [isLoading, setIsLoading] = useState(true); 
 
   useEffect(() => {
     const initialize = async () => {
