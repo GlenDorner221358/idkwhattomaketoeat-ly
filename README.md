@@ -55,6 +55,7 @@
   - [Development Documents](#development-documents)
     - [Highlights](#highlights)
     - [Challenges](#challenges)
+  - [Peer Review Feedback](#peer-review-feedback)
   - [Future Implementation](#future-implementation)
 - [Final Outcome](#final-outcome)
   - [Mockups](#mockups)
@@ -200,6 +201,34 @@ Camera page
 * I had to find R100 to give openAi to use their API
 * Getting the camera to work was a big hassle
 
+<!-- Peer Review Feedback -->
+### Peer Review Feedback
+* During the final week of class we were asked to have our peers review our creations. The following are some bits of feedback that I recieved. A CSV file with all of the user feedback has been included in this repo inside of the README IMAGES folder found inside of the ASSETS folder.
+
+1. The recipes were very legible and understandable 
+* All of the peer reviewers voted 8 and above on understandability out of 10
+
+2. The recipes were very good, but not perfect 
+* All of the peer reviewers voted 9 out of 10 on goodness
+
+3. All of the reviewers found the edit recipe title button very easily 
+* All of them voted YES when asked if it was where they thought it would be
+
+4. The Ai tended to use most of /all of the ingredients captured in an image using the camera feature
+* 2/3rds voted All while 1/3 voted More than half
+
+5. Everyone thought the signout process was very easy and intuitive 
+* All of them voted 5/5 for ease of use
+
+6. I should change the camera permissions text from yellow to something darker to better contrast against the white background
+* A very valid piece of advice, already implemented it as soon as it was mentioned
+
+7. A button on the history page that says "Add new recipe" and takes you to the dashboard page
+* Implemented. The peer reviewers seemed to try to create a new recipe using the search bar on the history page, I have tried to alleviate the issue by changing the placeholder text on the search bar to make it more clear that it is used to search previously made recipes
+
+8. A peer reviewer said that it would be nice if the image from the camera page displayed on the dashboard page when it was added to chat
+* I tried to implement this, but because of time constraints and because it is such a small addition, in the end this feature did not make it into the final build.
+
 <!-- Future Implementation -->
 ### Future Implementation
 * I want to add macros to the history screen, so you can ask the AI to analyze how many calories/proteins etc is in a certain amount of food
@@ -218,7 +247,7 @@ Camera page
 
 <!-- Video Demonstration -->
 ### Video Demonstration
-**Video Demonstration:** <a href="https://drive.google.com/file/d/1RHl_5j6lXsXsVsP9Hpjn7Ya6SG7a6UfB/view?usp=sharing">Google Drive Link</a> -->
+**Video Demonstration:** <a href="https://drive.google.com/file/d/1TLBtG2XaYjA-puCbQBikdkLbGlOh592i/view?usp=sharing">Google Drive Link</a> -->
 
 <!-- LICENSE -->
 ## License
