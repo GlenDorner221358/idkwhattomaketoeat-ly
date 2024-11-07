@@ -2,7 +2,7 @@ import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../firebase";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { db } from "../firebase";
-import { collection, addDoc, setDoc, getDocs, doc, orderBy, updateDoc, Timestamp, deleteDoc } from "firebase/firestore";
+import { collection, addDoc, setDoc, getDocs, doc, updateDoc, Timestamp, deleteDoc } from "firebase/firestore";
 
 var loggedEmail = "";
 
@@ -30,13 +30,13 @@ export const handleLogin = (email, password) => {
 // Register
 export const handleRegister = async (name, email, password) => {
     try {
+        // Register the user
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-        // Signed up 
         const user = userCredential.user;
         console.log("Registered: " + user.email);
-        const loggedEmail = user.email;
+        loggedEmail = user.email; // Set loggedEmail after registration
 
-        // Firestore creation
+        // Firestore document creation
         try {
             // Create user document in the 'users' collection
             await setDoc(doc(db, "users", loggedEmail), {
@@ -53,15 +53,10 @@ export const handleRegister = async (name, email, password) => {
             });
             console.log("Recipes collection created with initial document, ID: ", recipeRef.id);
 
-            // Create an initial document in the 'macros' collection
-            const macroRef = await addDoc(collection(db, "users", loggedEmail, "macros"), {
-                protein: 0,
-                carbs: 0,
-                fats: 0,
-                dateCreated: new Date()
-            });
-            console.log("Macros collection created with initial document, ID: ", macroRef.id);
-
+            // Sign in the user automatically after successful registration
+            await signInWithEmailAndPassword(auth, email, password);
+            console.log("User logged in: " + loggedEmail);
+            
             return true;
         } catch (e) {
             console.error("Error adding document", e);
@@ -74,6 +69,7 @@ export const handleRegister = async (name, email, password) => {
         return false;
     }
 };
+
 
 // FIRESTORE ||||||||||
 

@@ -142,7 +142,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   permissionText: {
-    color: '#e8f17f',
+    color: 'black',
     fontSize: width * 0.045,
     textAlign: 'center',
     marginBottom: 20,
