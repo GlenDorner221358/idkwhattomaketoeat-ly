@@ -207,18 +207,23 @@ Camera page
 
 1. The recipes were very legible and understandable 
 * All of the peer reviewers voted 8 and above on understandability out of 10
+<img src="./assets/README images/LegibilityGraph.png" alt="LegibilityGraph" style="width: 600px"/>
 
 2. The recipes were very good, but not perfect 
 * All of the peer reviewers voted 9 out of 10 on goodness
+<img src="./assets/README images/GoodnessGraph.png" alt="GoodnessGraph" style="width: 600px"/>
 
 3. All of the reviewers found the edit recipe title button very easily 
 * All of them voted YES when asked if it was where they thought it would be
+<img src="./assets/README images/EditButtonGraph.png" alt="EditButtonGraph" style="width: 600px"/>
 
 4. The Ai tended to use most of /all of the ingredients captured in an image using the camera feature
 * 2/3rds voted All while 1/3 voted More than half
+<img src="./assets/README images/IngredientsUsedGraph.png" alt="IngredientsUsedGraph" style="width: 600px"/>
 
 5. Everyone thought the signout process was very easy and intuitive 
 * All of them voted 5/5 for ease of use
+<img src="./assets/README images/SignoutProcessGraph.png" alt="SignoutProcessGraph" style="width: 600px"/>
 
 6. I should change the camera permissions text from yellow to something darker to better contrast against the white background
 * A very valid piece of advice, already implemented it as soon as it was mentioned
