@@ -111,7 +111,7 @@ These instructions will get you a copy of the project up and running on your loc
 For development and testing, the latest version of React-native is required, which is available here: [React-Native](https://reactnative.dev/).
 You will also have to download expo GO on your mobile device from its respective app store to run the app: [.expoGO](https://expo.dev/go).
 
-This application utilizes api keys from 3 different services, as such you will have to create your own .env file and include 3 api keys from google firebase, openAi and google cloud vision in your own .env file. This application also utilizes react-native-dotenv to import these api keys as consts from the env file, here is an example:
+This application utilizes api keys from 3 different services, as such you will have to create your own .env file and include 3 api keys from google firebase, openAi and google cloud vision in your own .env file. This application utilizes react-native-dotenv to import these api keys as consts from the env file, here is an example:
 REACT_NATIVE_FIREBASE_API_KEY="your api key here"
 
 You will also need to create your own firebase project with authentication and a firestore database and link it in a firebase.js file.
@@ -133,7 +133,14 @@ Here are a couple of ways to clone this repo:
 
 Once installed, open the terminal and run "npm i" inside the the idkwhattomaketoeat-ly folder.
 
-Then run "npx expo start". 
+Then create a new .env file in the root directory
+
+Create 3 consts for your firebase, openAi and Cloud vision Api keys as shown above in the prerequisites and paste the relevant API keys in their respective places:
+REACT_APP_FIREBASE_API_KEY
+REACT_APP_OPENAI_API_KEY
+REACT_APP_GOOGLE_CLOUD_API_KEY
+
+Then run "npx expo start" in the terminal. 
 
 Finally scan the generated QR code using the expo Go app and the app should load.
 
@@ -178,15 +185,15 @@ The idea was to make fun of apps that end in "ly" and from there the rest of the
 <!-- Wireframes -->
 * Wireframes
 Onboarding page
-<img src="./assets/README images/onboarding screen.png" alt="Onboarding" style="width: 600px"/>
+<img src="./assets/README images/onboarding screen.png" alt="Onboarding" style="width: 300px"/>
 Login/Signup Page
-<img src="./assets/README images/LoginSignup.png" alt="LoginSignup" style="width: 600px"/>
+<img src="./assets/README images/LoginSignup.png" alt="LoginSignup" style="width: 300px"/>
 History page
-<img src="./assets/README images/History.png" alt="History" style="width: 600px"/>
+<img src="./assets/README images/History.png" alt="History" style="width: 300px"/>
 Dashboard page
-<img src="./assets/README images/dashboard.png" alt="Dashboard" style="width: 600px"/>
+<img src="./assets/README images/dashboard.png" alt="Dashboard" style="width: 300px"/>
 Camera page
-<img src="./assets/README images/Camera.png" alt="Camera" style="width: 600px"/>
+<img src="./assets/README images/Camera.png" alt="Camera" style="width: 300px"/>
 
 <!-- Highlights -->
 #### Highlights
@@ -243,10 +250,10 @@ Camera page
 ## Final Outcome
 <!-- SCREENSHOTS -->
 ### Screenshots
-<img src="./assets/README images/dashboard page SCREENSHOT.jpg" alt="Dashboard page screenshot" style="width: 600px"/>
-<img src="./assets/README images/camera page SCREENSHOT.jpg" alt="Camera page screenshot" style="width: 600px"/>
-<img src="./assets/README images/history page SCREENSHOT.jpg" alt="history page screenshot" style="width: 600px"/>
-<img src="./assets/README images/signup page SCREENSHOT.jpg" alt="signup page screenshot" style="width: 600px"/>
+<img src="./assets/README images/dashboard page SCREENSHOT.jpg" alt="Dashboard page screenshot" style="width: 400px"/>
+<img src="./assets/README images/camera page SCREENSHOT.jpg" alt="Camera page screenshot" style="width: 400px"/>
+<img src="./assets/README images/history page SCREENSHOT.jpg" alt="history page screenshot" style="width: 400px"/>
+<img src="./assets/README images/signup page SCREENSHOT.jpg" alt="signup page screenshot" style="width: 400px"/>
 
 <br>
 
