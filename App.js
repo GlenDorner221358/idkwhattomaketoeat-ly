@@ -63,9 +63,11 @@ export default function App() {
   return (
     <NavigationContainer>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
-        {isFirstLaunch && !user ? (
-          <Stack.Screen name="onboarding" component={OnboardingScreen} />
-        ) : user ? (
+        {/* Always include onboarding */}
+        <Stack.Screen name="onboarding" component={OnboardingScreen} />
+
+        {user ? (
+          // Main tab navigator for logged-in users
           <Stack.Screen name="main">
             {() => (
               <Tab.Navigator
@@ -110,13 +112,14 @@ export default function App() {
             )}
           </Stack.Screen>
         ) : (
+          // Login and Register screens for non-logged-in users
           <>
             <Stack.Screen name="login" component={LoginScreen} />
             <Stack.Screen name="register" component={RegisterScreen} />
-            <Stack.Screen name="onboarding" component={OnboardingScreen} />
           </>
         )}
       </Stack.Navigator>
     </NavigationContainer>
+
   );
 }

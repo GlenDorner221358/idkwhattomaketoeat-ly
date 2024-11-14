@@ -111,6 +111,8 @@ These instructions will get you a copy of the project up and running on your loc
 For development and testing, the latest version of React-native is required, which is available here: [React-Native](https://reactnative.dev/).
 You will also have to download expo GO on your mobile device from its respective app store to run the app: [.expoGO](https://expo.dev/go).
 
+IMPORTANT with the release of expo SDK52 the camera screen NO LONGER FUNCTIONS. Please install an ExpoGo version on your device that is compatible with SDK51!
+
 This application utilizes api keys from 3 different services, as such you will have to create your own .env file and include 3 api keys from google firebase, openAi and google cloud vision in your own .env file. This application utilizes react-native-dotenv to import these api keys as consts from the env file, here is an example:
 REACT_NATIVE_FIREBASE_API_KEY="your api key here"
 

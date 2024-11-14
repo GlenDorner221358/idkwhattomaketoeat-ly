@@ -7,7 +7,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 const { width, height } = Dimensions.get('window');
 
-function LoginScreen( {navigation} ) {
+function LoginScreen({ navigation }) {
 
   // USERS EMAIL AND PASSWORD
   const [email, setEmail] = useState('');
@@ -19,23 +19,15 @@ function LoginScreen( {navigation} ) {
     handleLogin(email, password, setErrorMessage);
   };
 
-
-  // consider use provider
-  useEffect(() => {
-    const checkOnboardingStatus = async () => {
-      try {
-        const onboarded = await AsyncStorage.getItem('onboarded');
-        if (onboarded !== 'true') {
-          await AsyncStorage.setItem('onboarded', 'true');
-          navigation.navigate('onboarding');
-        }
-      } catch (error) {
-        console.error('Failed to check onboarding status:', error);
-      }
-    };
-
-    checkOnboardingStatus();
-  }, []);
+  // RESET ONBOARDING FUNCTION
+  const resetOnboarding = async () => {
+    try {
+      await AsyncStorage.removeItem('hasLaunched');  // Reset isFirstLaunch flag
+      navigation.navigate('onboarding');  // Navigate to onboarding screen
+    } catch (error) {
+      console.error('Failed to reset onboarding status:', error);
+    }
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -60,9 +52,7 @@ function LoginScreen( {navigation} ) {
           secureTextEntry={true}
         />
 
-        <Text
-          style={styles.errorMessage}
-        >
+        <Text style={styles.errorMessage}>
           {errorMessage}
         </Text>
       </View>
@@ -75,8 +65,13 @@ function LoginScreen( {navigation} ) {
           <Text style={styles.registerLink}>Register Here</Text>
         </TouchableOpacity>
       </View>
+      
+      {/* Reset Onboarding Button */}
+      <TouchableOpacity style={styles.resetButton} onPress={resetOnboarding}>
+        <Text style={styles.resetButtonText}>Redo Onboarding</Text>
+      </TouchableOpacity>
     </SafeAreaView>
-  )
+  );
 }
 
 export default LoginScreen
@@ -152,5 +147,15 @@ const styles = StyleSheet.create({
   },
   errorMessage: {
     color: "red",
-  }
+  },
+  resetButton: {
+    marginTop: 20,
+    padding: 10,
+    backgroundColor: '#888', // Set the color as needed
+    borderRadius: 5,
+  },
+  resetButtonText: {
+    color: '#fff',
+    textAlign: 'center',
+  },
 })
