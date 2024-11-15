@@ -3,7 +3,9 @@ import { SafeAreaView, StyleSheet, View, Image, Text, Dimensions, Pressable } fr
 
 const { width, height } = Dimensions.get('window');
 
-export default function OnboardingScreen({ navigation }) {
+export default function OnboardingScreen({ navigation, completeOnboarding }) {
+
+    const [currentIndex, setCurrentIndex] = useState(0);
 
     const data = [
         {
@@ -23,7 +25,6 @@ export default function OnboardingScreen({ navigation }) {
         },
     ];
 
-    const [currentIndex, setCurrentIndex] = useState(0);
 
     const handleNext = () => {
         if (currentIndex < data.length - 1) {
@@ -55,7 +56,7 @@ export default function OnboardingScreen({ navigation }) {
                         <Text style={styles.ButtonText}> Next </Text>
                     </Pressable>}
                 {currentIndex === data.length - 1 && 
-                    <Pressable onPress={() => navigation.navigate('login')} style={styles.Button} >
+                    <Pressable onPress={completeOnboarding} style={styles.Button} >
                         <Text style={styles.ButtonText}> Go to Login </Text>
                     </Pressable>}
             </View>

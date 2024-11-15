@@ -7,7 +7,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 const { width, height } = Dimensions.get('window');
 
-function LoginScreen({ navigation }) {
+function LoginScreen({ navigation, resetOnboarding }) {
 
   // USERS EMAIL AND PASSWORD
   const [email, setEmail] = useState('');
@@ -18,16 +18,7 @@ function LoginScreen({ navigation }) {
   const login = () => {
     handleLogin(email, password, setErrorMessage);
   };
-
-  // RESET ONBOARDING FUNCTION
-  const resetOnboarding = async () => {
-    try {
-      await AsyncStorage.removeItem('hasLaunched');  // Reset isFirstLaunch flag
-      navigation.navigate('onboarding');  // Navigate to onboarding screen
-    } catch (error) {
-      console.error('Failed to reset onboarding status:', error);
-    }
-  };
+  
 
   return (
     <SafeAreaView style={styles.container}>
